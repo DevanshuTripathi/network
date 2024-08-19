@@ -1,0 +1,18 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div id="posts">
+        {% for post in posts %}
+            <div id="post">
+                <a href="{% url 'profile_page' user_id=post.user.id %}" id="user"><strong>{{ post.user }}</strong></a>
+                <br>
+                {% if post.user == request.user %}
+                    <a>Edit</a>
+                {% endif %}
+                <p>{{ post.text }}</p>
+                <p id="timestamp">{{ post.timestamp }}</p>
+                Likes: {{ post.likes }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

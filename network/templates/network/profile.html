@@ -1,0 +1,26 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+
+    <div id="post">
+        <div id="user">
+            <h3>{{ user }}</h3>
+        </div>
+    </div>
+
+    <div id="posts">
+        {% for post in posts %}
+            <div id="post">
+                <a href="#" id="user"><strong>{{ post.user }}</strong></a>
+                <br>
+                {% if post.user == request.user %}
+                    <a>Edit</a>
+                {% endif %}
+                <p>{{ post.text }}</p>
+                <p id="timestamp">{{ post.timestamp }}</p>
+                Likes: {{ post.likes }}
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
