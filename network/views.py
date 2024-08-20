@@ -6,14 +6,29 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import User, Like, Post, Following
 
 
 def index(request):
     posts = Post.objects.all().order_by('-id')
+    p = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = p.get_page(page_number)
+
+    try:
+        page_obj = p.get_page(page_number)
+    except PageNotAnInteger:
+        # If page_number is not an integer, deliver the first page.
+        page_obj = p.page(1)
+    except EmptyPage:
+        # If page_number is out of range (e.g., 9999), deliver the last page of results.
+        page_obj = p.page(p.num_pages)
+
     return render(request, "network/index.html", {
-        "posts":posts,
+        "posts":page_obj,
+        "page_obj":page_obj
     })
 
 
@@ -81,6 +96,6 @@ def profile_page(request, user_id):
     user = User.objects.get(pk=user_id)
     posts = Post.objects.filter(user=user)
     return render(request, 'network/profile.html', {
-        "user":user,
+        "profile":user,
         "posts":posts,
     })
