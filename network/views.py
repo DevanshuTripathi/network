@@ -73,6 +73,8 @@ def new_post(request):
         post = Post(user=request.user, text=request.POST["text"], likes=0)
         post.save()
 
+        return HttpResponseRedirect(reverse("index"))
+
     return render(request, 'network/newpost.html')
 
 def profile_page(request, user_id):
