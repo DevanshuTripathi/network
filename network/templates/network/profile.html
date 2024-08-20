@@ -5,13 +5,16 @@
     <div id="post">
         <div id="user">
             <h3>{{ profile }}</h3>
+            {% if user.is_authenticated and request.user != profile %}
+                <button class="btn btn-primary py-1 px-2 ms-auto">Follow</button>
+            {% endif %}
         </div>
     </div>
 
     <div id="posts">
         {% for post in posts %}
             <div id="post">
-                <a href="#" id="user"><strong>{{ post.user }}</strong></a>
+                <a href="{% url 'profile_page' user_id=post.user.id %}" id="user"><strong>{{ post.user }}</strong></a>
                 <br>
                 {% if post.user == request.user %}
                     <a>Edit</a>
