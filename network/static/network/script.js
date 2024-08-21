@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(followButton){
         followButton.addEventListener('click', () => followUnfollow());
     }
+
+    const like = document.querySelectorAll("#like");
+    like.forEach(button => {
+        button.addEventListener('click', () => likeUnlike(button))
+    })
 })
 
 function followUnfollow(){
@@ -24,3 +29,29 @@ function followUnfollow(){
     })
 }
     
+function likeUnlike(button){
+    const postId = button.dataset.postId;
+
+    const likes = document.querySelector(".count")
+    counter = Number(likes.innerText)
+
+    const isLiked = button.classList.contains('liked');
+    console.log(isLiked)
+
+    fetch(`/like/${postId}`, {
+        method: "PUT",
+        body: JSON.stringify({ action: !isLiked })
+    })
+    .then(data => {
+        if(!isLiked){
+            counter++;
+            button.classList.add('liked');
+            likes.innerText = counter;
+        }
+        else{
+            counter--;
+            button.classList.remove('liked')
+            likes.innerText = counter;
+        }
+    })
+}

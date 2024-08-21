@@ -27,9 +27,13 @@ def index(request):
         # If page_number is out of range (e.g., 9999), deliver the last page of results.
         page_obj = p.page(p.num_pages)
 
+    liked_posts = Like.objects.filter(user=request.user, like=True).values_list('post_id', flat=True)
+    liked_post_ids = set(liked_posts)
+
     return render(request, "network/index.html", {
         "posts":page_obj,
-        "page_obj":page_obj
+        "page_obj":page_obj,
+        "liked_post_ids":liked_post_ids
     })
 
 
@@ -113,29 +117,6 @@ def profile_page(request, user_id):
 
     })
 
-@login_required
-@csrf_exempt
-def follow_unfollow(request, user_id):
-
-    if request.method!= "PUT":
-        return JsonResponse({"error":"POST request is required"}, status=400)
-
-    if request.method == "PUT":
-        current_user = request.user
-        profile_user = User.objects.get(pk=user_id)
-
-        data = json.loads(request.body)
-        if data.get("follow"):
-            following = Following.objects.get(user = current_user, following = profile_user)
-            following.delete()
-            
-        else:
-            following = Following(user = current_user, following = profile_user)
-            following.save()
-
-        return JsonResponse({"message": "Followed successfully"}, status=201)
-    
-
 def following(request):
     current_user = request.user
     followings = Following.objects.filter(user = current_user)
@@ -153,4 +134,66 @@ def following(request):
         "posts":page_obj,
         "page_obj":page_obj
     })
-        
+
+
+@login_required
+@csrf_exempt
+def follow_unfollow(request, user_id):
+
+    if request.method!= "PUT":
+        return JsonResponse({"error":"PUT request is required"}, status=400)
+
+    if request.method == "PUT":
+        current_user = request.user
+        profile_user = User.objects.get(pk=user_id)
+
+        data = json.loads(request.body)
+        if data.get("follow"):
+            following = Following.objects.get(user = current_user, following = profile_user)
+            following.delete()
+            
+        else:
+            following = Following(user = current_user, following = profile_user)
+            following.save()
+
+        return JsonResponse({"message": "Followed successfully"}, status=201)
+
+@login_required   
+@csrf_exempt
+def like(request, post_id):
+
+    if request.method != "PUT":
+        return JsonResponse({"error":"PUT request is required"}, status=400)
+
+    if request.method == "PUT":
+
+        try:
+            current_user = request.user
+            post = Post.objects.get(pk=post_id)
+            data = json.loads(request.body)
+            action = data.get("action")
+
+            if action is not None:
+
+                like, created = Like.objects.get_or_create(user=current_user, post=post)
+
+                if action:
+                    like.like = True
+                else:
+                    like.like = False
+                like.save()
+
+                if action:
+                    post.likes += 1
+                else:
+                    post.likes -= 1
+            
+                post.save()
+                return JsonResponse({"message": "success"}, status=200)
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post not found"}, status=404)
+        except Like.DoesNotExist:
+            return JsonResponse({"error": "Like record not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+

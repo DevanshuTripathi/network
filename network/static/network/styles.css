@@ -1,5 +1,5 @@
 body{
-    background-image: url("https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg?auto=compress&cs=tinysrgb&w=600https://images.pexels.com/photos/956999/milky-way-starry-sky-night-sky-star-956999.jpeg?auto=compress&cs=tinysrgb&w=600");
+    background-image: url("https://images.pexels.com/photos/19670/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
     background-repeat: no-repeat; 
   background-size: cover; 
   background-position: center; 
@@ -77,4 +77,20 @@ body{
 
 h2, .register{
     color:white;
+}
+
+#like{
+    border: none;
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:5px;
+    padding-bottom:5px;
+    background-color:#F60C44;
+    color:white;
+    font-size:18px;
+    border-radius:5px;
+}
+
+.liked{
+    background-color: pink;
 }

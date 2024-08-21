@@ -1,5 +1,7 @@
 {% extends "network/layout.html" %}
 
+{% load static %}
+
 {% block body %}
     <div id="posts">
         {% for post in page_obj %}
@@ -11,7 +13,10 @@
                 {% endif %}
                 <p>{{ post.text }}</p>
                 <p id="timestamp">{{ post.timestamp }}</p>
-                Likes: {{ post.likes }}
+                <button id="like" data-post-id="{{ post.id }}" >
+                     <i class="fa fa-heart" style="font-size:18px"></i> 
+                     <span class="count">{{ post.likes }}</span>
+                     </button>
             </div>
         {% endfor %}
     </div>
@@ -41,4 +46,7 @@
             {% endif %}
         </ul>
     </nav>
+
+    <script src="{% static 'network/script.js' %}"></script>
+
 {% endblock %}

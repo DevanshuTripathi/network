@@ -12,5 +12,6 @@ urlpatterns = [
     path("profile/<int:user_id>/", views.profile_page, name="profile_page"),
     path("following/", views.following, name="following"),
 
-    path("follow_unfollow/<int:user_id>", views.follow_unfollow, name="follow_unfollow")
+    path("follow_unfollow/<int:user_id>", views.follow_unfollow, name="follow_unfollow"),
+    path("like/<int:post_id>", views.like, name="like")
 ]

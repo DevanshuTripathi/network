@@ -9,7 +9,7 @@ class User(AbstractUser):
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userpost")
     text = models.TextField()
-    likes = models.IntegerField(blank=True, null=True)
+    likes = models.IntegerField(blank=True, null=True, default =0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -31,4 +31,4 @@ class Like(models.Model):
     like = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user} liked {self.post} {self.like}"
+        return f"{self.user} liked {self.post}"
