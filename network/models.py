@@ -3,8 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    followers = models.IntegerField(blank=True, null=True)
-    following = models.IntegerField(blank=True, null=True)
+    followers = models.IntegerField(blank=True, null=True, default=0)
+    following = models.IntegerField(blank=True, null=True, default=0)
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userpost")

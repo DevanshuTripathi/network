@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const followButton = document.querySelector("#followButton");
-    console.log(followButton.innerText)
     if(followButton){
         followButton.addEventListener('click', () => followUnfollow());
     }
@@ -8,16 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function followUnfollow(){
     const userId = Number(window.location.pathname.split('/').filter(Boolean).pop());
-    console.log(userId)
 
-    fetch(`/follow_unfollow/${userId}`,{
-        method:"POST",
-        body: JSON.stringify({
+    const text = document.querySelector("#followButton");
+    const followStatus = text.innerText === 'Follow';
 
-        })
+    fetch(`/follow_unfollow/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ follow: !followStatus })
     })
-    .then(response => response.json())
-    .then(result => {
-
-    });
+    .then(data => {
+        if (followStatus) {
+            text.innerText = 'Unfollow';
+        } else {
+            text.innerText = 'Follow';
+        }
+    })
 }
+    

@@ -1,5 +1,7 @@
 {% extends 'network/layout.html' %}
 
+{% load static %}
+
 {% block body %}
 
     <div id="post">
@@ -34,4 +36,5 @@
         {% endfor %}
     </div>
 
+    <script src="{% static 'network/script.js' %}"></script>
 {% endblock %}

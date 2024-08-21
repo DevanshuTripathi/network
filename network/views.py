@@ -99,7 +99,7 @@ def profile_page(request, user_id):
     current_user = request.user
     posts = Post.objects.filter(user=profile_user)
     followers = Following.objects.filter(following = profile_user).count()
-    followings = Following.objects.filter(user = current_user).count()
+    followings = Following.objects.filter(user = profile_user).count()
 
     is_following = Following.objects.filter(user=current_user, following=profile_user).exists()
 
@@ -113,21 +113,44 @@ def profile_page(request, user_id):
 
     })
 
+@login_required
+@csrf_exempt
 def follow_unfollow(request, user_id):
 
-    if request.method!= "POST":
+    if request.method!= "PUT":
         return JsonResponse({"error":"POST request is required"}, status=400)
 
+    if request.method == "PUT":
+        current_user = request.user
+        profile_user = User.objects.get(pk=user_id)
+
+        data = json.loads(request.body)
+        if data.get("follow"):
+            following = Following.objects.get(user = current_user, following = profile_user)
+            following.delete()
+            
+        else:
+            following = Following(user = current_user, following = profile_user)
+            following.save()
+
+        return JsonResponse({"message": "Followed successfully"}, status=201)
+    
+
+def following(request):
     current_user = request.user
-    profile_user = User.objects.get(pk=user_id)
+    followings = Following.objects.filter(user = current_user)
+    postings = []
+    for follow in followings:
+        user = follow.following
+        posts = Post.objects.filter(user = user).order_by('-id')
+        postings.extend(posts)
+    
+    p = Paginator(postings, 10)
+    page_number = request.GET.get('page')
+    page_obj = p.get_page(page_number)
 
-    check_follow = Following.objects.get(user=current_user, following=profile_user)
-
-    if check_follow:
-        check_follow.delete()
-        return JsonResponse({"message": "Unfollowed successfully"}, status=201)
-
-    follow = Following(user = current_user, following=profile_user)
-    follow.save()
-
-    return JsonResponse({"message": "Followed successfully"}, status=201)
+    return render(request, "network/index.html", {
+        "posts":page_obj,
+        "page_obj":page_obj
+    })
+        
