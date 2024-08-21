@@ -6,8 +6,16 @@
         <div id="user">
             <h3>{{ profile }}</h3>
             {% if user.is_authenticated and request.user != profile %}
-                <button class="btn btn-primary py-1 px-2 ms-auto">Follow</button>
+                <button class="btn btn-primary py-1 px-2 ms-auto" id="followButton">
+                    {% if is_following %}
+                        Unfollow
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </button>
             {% endif %}
+            <h6>Followers : {{ followers }}</h6>
+            <h6>Following : {{ followings }}</h6>
         </div>
     </div>
 

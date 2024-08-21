@@ -48,8 +48,8 @@
             {% block body %}
             {% endblock %}
         </div>
-        {% block script %}
-        <script src="{% static 'network/script.js' %}"></script>
-        {% endblock %}
+        {% block extra_script %}
+    <script src="{% static 'network/script.js' %}"></script>
+    {% endblock %}
     </body>
 </html>

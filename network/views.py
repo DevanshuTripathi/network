@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Like, Post, Following
 
@@ -93,9 +94,40 @@ def new_post(request):
     return render(request, 'network/newpost.html')
 
 def profile_page(request, user_id):
-    user = User.objects.get(pk=user_id)
-    posts = Post.objects.filter(user=user)
+    
+    profile_user = User.objects.get(pk=user_id)
+    current_user = request.user
+    posts = Post.objects.filter(user=profile_user)
+    followers = Following.objects.filter(following = profile_user).count()
+    followings = Following.objects.filter(user = current_user).count()
+
+    is_following = Following.objects.filter(user=current_user, following=profile_user).exists()
+
+
     return render(request, 'network/profile.html', {
-        "profile":user,
+        "profile":profile_user,
         "posts":posts,
+        "is_following":is_following,
+        "followers" : followers,
+        "followings": followings,
+
     })
+
+def follow_unfollow(request, user_id):
+
+    if request.method!= "POST":
+        return JsonResponse({"error":"POST request is required"}, status=400)
+
+    current_user = request.user
+    profile_user = User.objects.get(pk=user_id)
+
+    check_follow = Following.objects.get(user=current_user, following=profile_user)
+
+    if check_follow:
+        check_follow.delete()
+        return JsonResponse({"message": "Unfollowed successfully"}, status=201)
+
+    follow = Following(user = current_user, following=profile_user)
+    follow.save()
+
+    return JsonResponse({"message": "Followed successfully"}, status=201)
