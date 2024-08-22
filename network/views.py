@@ -145,7 +145,7 @@ def following(request):
         user = follow.following
         posts = Post.objects.filter(user = user).order_by('-id')
         postings.extend(posts)
-    
+
     p = Paginator(postings, 10)
     page_number = request.GET.get('page')
     page_obj = p.get_page(page_number)
