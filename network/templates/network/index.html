@@ -8,14 +8,28 @@
             <div id="post">
                 <a href="{% url 'profile_page' user_id=post.user.id %}" id="user"><strong>{{ post.user }}</strong></a>
                 <br>
+                <div class="editButton-{{ post.id }}" id="edit-text">
+                    {% if post.user == request.user %}
+                    <button id="edit" data-post-id="{{ post.id }}" class="edit-button">
+                        Edit
+                    </button>
+                    {% endif %}
+                    <p id = "postBody-{{ post.id }}">{{ post.text }}</p>
+                </div>
                 {% if post.user == request.user %}
-                    <a>Edit</a>
+                <div class="editView" id="editor-{{ post.id }}">
+                    <form class="editForm-{{ post.id }}">
+                        <textarea name="text" id="editedText-{{ post.id }}">
+                            {{ post.text }}
+                        </textarea>
+                        <input type="submit">
+                    </form>
+                </div>
                 {% endif %}
-                <p>{{ post.text }}</p>
                 <p id="timestamp">{{ post.timestamp }}</p>
-                <button id="like" data-post-id="{{ post.id }}" >
-                     <i class="fa fa-heart" style="font-size:18px"></i> 
-                     <span class="count">{{ post.likes }}</span>
+                <button id="like" data-post-id="{{ post.id }}" class="like-button {% if post.id in liked_post_ids %}liked{% endif %}"> 
+                        <i class="fa fa-heart" style="font-size:18px" ></i>
+                     <span class="count" id="like-count-{{ post.id }}">{{ post.likes }}</span>
                      </button>
             </div>
         {% endfor %}

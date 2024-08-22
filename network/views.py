@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import AnonymousUser
 
 from .models import User, Like, Post, Following
 
@@ -21,14 +22,15 @@ def index(request):
     try:
         page_obj = p.get_page(page_number)
     except PageNotAnInteger:
-        # If page_number is not an integer, deliver the first page.
         page_obj = p.page(1)
     except EmptyPage:
-        # If page_number is out of range (e.g., 9999), deliver the last page of results.
         page_obj = p.page(p.num_pages)
 
-    liked_posts = Like.objects.filter(user=request.user, like=True).values_list('post_id', flat=True)
-    liked_post_ids = set(liked_posts)
+    if isinstance(request.user, AnonymousUser):
+        liked_post_ids = set()
+    else:
+        liked_posts = Like.objects.filter(user=request.user, like=True).values_list('post_id', flat=True)
+        liked_post_ids = set(liked_posts)
 
     return render(request, "network/index.html", {
         "posts":page_obj,
@@ -107,13 +109,31 @@ def profile_page(request, user_id):
 
     is_following = Following.objects.filter(user=current_user, following=profile_user).exists()
 
+    p = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = p.get_page(page_number)
+
+    try:
+        page_obj = p.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = p.page(1)
+    except EmptyPage:
+        page_obj = p.page(p.num_pages)
+
+    if isinstance(request.user, AnonymousUser):
+        liked_post_ids = set()
+    else:
+        liked_posts = Like.objects.filter(user=request.user, like=True).values_list('post_id', flat=True)
+        liked_post_ids = set(liked_posts)
 
     return render(request, 'network/profile.html', {
         "profile":profile_user,
-        "posts":posts,
+        "posts":page_obj,
+        "page_obj":page_obj,
         "is_following":is_following,
         "followers" : followers,
         "followings": followings,
+        "liked_post_ids":liked_post_ids
 
     })
 
@@ -197,3 +217,24 @@ def like(request, post_id):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
+@csrf_exempt
+@login_required
+def edit(request, post_id):
+    if request.method != "PUT":
+        return JsonResponse({"error":"PUT request is required"}, status=400)
+    
+    try:
+        current_user = request.user
+        post = Post.objects.get(pk=post_id)
+        data = json.loads(request.body)
+
+        post.text = data["text"]
+        post.save()
+        return JsonResponse({"message": "success"}, status=200)
+
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found"}, status=404)
+    except Like.DoesNotExist:
+        return JsonResponse({"error": "Like record not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

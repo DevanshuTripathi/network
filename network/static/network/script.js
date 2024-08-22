@@ -4,9 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
         followButton.addEventListener('click', () => followUnfollow());
     }
 
-    const like = document.querySelectorAll("#like");
-    like.forEach(button => {
+    const likeButton = document.querySelectorAll(".like-button");
+    likeButton.forEach(button => {
         button.addEventListener('click', () => likeUnlike(button))
+    })
+
+    const editButton = document.querySelectorAll(".edit-button");
+    editButton.forEach(button => {
+        button.addEventListener('click', editPost(button))
     })
 })
 
@@ -31,12 +36,10 @@ function followUnfollow(){
     
 function likeUnlike(button){
     const postId = button.dataset.postId;
-
-    const likes = document.querySelector(".count")
-    counter = Number(likes.innerText)
+    const likes = document.querySelector(`#like-count-${postId}`);
+    let counter = Number(likes.innerText);
 
     const isLiked = button.classList.contains('liked');
-    console.log(isLiked)
 
     fetch(`/like/${postId}`, {
         method: "PUT",
@@ -52,6 +55,33 @@ function likeUnlike(button){
             counter--;
             button.classList.remove('liked')
             likes.innerText = counter;
+        }
+    })
+}
+
+function editPost(button){
+    
+    button.addEventListener('click', () => {
+        const postId = button.dataset.postId;
+        
+        document.querySelector(`.editButton-${postId}`).style.display = "none";
+        document.querySelector(`#editor-${postId}`).style.display = "block";
+
+        document.querySelector(`.editForm-${postId}`).onsubmit = function(){
+
+            fetch(`/edit/${postId}`, {
+                method:"PUT",
+                body: JSON.stringify({
+                    "text": document.querySelector(`#editedText-${postId}`).value
+                })
+            })
+            .then(data => {
+                document.querySelector(`.editButton-${postId}`).style.display = "block";
+                document.querySelector(`#editor-${postId}`).style.display = "none";
+                document.querySelector(`#postBody-${postId}`).innerHTML = document.querySelector(`#editedText-${postId}`).value
+            })
+
+            return false;
         }
     })
 }
