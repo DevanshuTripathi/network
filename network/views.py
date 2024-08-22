@@ -103,7 +103,7 @@ def profile_page(request, user_id):
     
     profile_user = User.objects.get(pk=user_id)
     current_user = request.user
-    posts = Post.objects.filter(user=profile_user)
+    posts = Post.objects.filter(user=profile_user).order_by('-id')
     followers = Following.objects.filter(following = profile_user).count()
     followings = Following.objects.filter(user = profile_user).count()
 
